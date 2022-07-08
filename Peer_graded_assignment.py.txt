@@ -1,0 +1,183 @@
+#instal packages
+#pip install dash
+#pip install pandas
+#pip install wordcloud
+#pip install folium
+#pip install plotly
+
+# Import required packages
+import pandas as pd
+import plotly.express as px
+import dash
+import dash_html_components as html
+import dash_core_components as dcc
+import dash.dependencies as dd
+from dash import Dash, dcc, html
+from dash.dependencies import Input, Output
+from io import BytesIO
+import folium
+
+import pandas as pd
+import folium
+import numpy as np
+from wordcloud import WordCloud
+import base64
+
+from urllib.request import urlopen
+import json
+with urlopen('https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBMDeveloperSkillsNetwork-DV0101EN-SkillsNetwork/Data%20Files/world_countries.json') as response:
+    world_geo = json.load(response)
+
+# Read the data into pandas dataframe
+demographics_data =  pd.read_csv('https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-DA0321EN-SkillsNetwork/LargeData/m5_survey_data_demographics.csv', 
+                            encoding = "ISO-8859-1",
+                            dtype={'Div1Airport': str, 'Div1TailNum': str, 
+                                   'Div2Airport': str, 'Div2TailNum': str})
+technology_data =  pd.read_csv('https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-DA0321EN-SkillsNetwork/LargeData/m5_survey_data_technologies_normalised.csv', 
+                            encoding = "ISO-8859-1",
+                            dtype={'Div1Airport': str, 'Div1TailNum': str, 
+                                   'Div2Airport': str, 'Div2TailNum': str})
+
+external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
+
+app = Dash(__name__, external_stylesheets=external_stylesheets)
+
+app = dash.Dash(__name__)
+
+
+# Get the layout of the application and adjust it.
+# Create an outer division using html.Div and add title to the dashboard using html.H1 component
+# Add description about the graph using HTML P (paragraph) component
+# Finally, add graph component.
+app.layout = html.Div(children=[html.H1('Peer Graded Assignment',
+                                style={'textAlign': 'center',
+                                        'color': '#503D36',
+                                         'font-size': 40}),
+                                dcc.Tabs(id="tabs-example-graph", value='tab-1-example-graph', children=[
+                                    dcc.Tab(label='Current Technology Usage', value='tab-1-example-graph'),
+                                    dcc.Tab(label='Future Technology Trend', value='tab-2-example-graph'),
+                                    dcc.Tab(label='Demographics', value='tab-3-example-graph'),]),
+                                    html.Div(id='tabs-content-example-graph'),
+
+                    ])
+#dashboard-1 panel 1
+tab1_panel1=technology_data.groupby(['LanguageWorkedWith'])['Respondent'].count().nlargest(10).reset_index()
+fig1_1=px.bar(tab1_panel1,x='LanguageWorkedWith',y='Respondent',color="LanguageWorkedWith", title='Top 10 Language Worked With',labels={'Respondent':'Number of Respondent',"LanguageWorkedWith":"Language Worked With"},text_auto=True)
+
+#dashboard-1 panel 2
+tab1_panel2=technology_data.groupby(['DatabaseWorkedWith'])['Respondent'].count().nlargest(10).reset_index()
+fig1_2=px.bar(tab1_panel2,x='Respondent',y='DatabaseWorkedWith',color="DatabaseWorkedWith",orientation='h', title='Top 10 Database Worked With',labels={'Respondent':'Number of Respondent',"DatabaseWorkedWith":"Database Worked With"},text_auto=True)
+
+#dashboard-1 panel 3
+text=technology_data.groupby(['PlatformWorkedWith'])['Respondent'].count().reset_index()
+
+#dashboard-1 panel 4
+tab1_panel4=technology_data.groupby(['WebFrameWorkedWith'])['Respondent'].count().nlargest(10).reset_index()
+fig1_4=px.scatter(tab1_panel4,x='WebFrameWorkedWith',y='Respondent',color="WebFrameWorkedWith", title='Top 10 WebFrameWorkedWith',size="Respondent")
+
+#dashboard-2 panel 1
+tab2_panel1=technology_data.groupby(['LanguageDesireNextYear'])['Respondent'].count().nlargest(10).reset_index()
+fig2_1=px.bar(tab2_panel1,x='LanguageDesireNextYear',y='Respondent',color="LanguageDesireNextYear", title='Top 10 Languages Desire Next Year',labels={'Respondent':'Number of Respondent',"LanguageDesireNextYear":"Languages Desire Next Year"},text_auto=True)
+
+#dashboard-2 panel 2
+tab2_panel2=technology_data.groupby(['DatabaseDesireNextYear'])['Respondent'].count().nlargest(10).reset_index()
+fig2_2=px.bar(tab2_panel2,x='DatabaseDesireNextYear',y='Respondent',color="DatabaseDesireNextYear", title='Top 10 Databases Desire Next Year',labels={'Respondent':'Number of Respondent',"DatabaseDesireNextYear":"Databases Desire Next Year"},text_auto=True)
+
+
+#dashboard-2 panel 3
+tab2_panel3=technology_data.groupby(['PlatformDesireNextYear'])['Respondent'].count().nlargest(10).reset_index()
+fig2_3 = px.treemap(tab2_panel3,path=['PlatformDesireNextYear'],values='Respondent', color='PlatformDesireNextYear')
+
+#dashboard-2 panel 4
+tab2_panel4=technology_data.groupby(['WebFrameDesireNextYear'])['Respondent'].count().nlargest(10).reset_index()
+fig2_4=px.scatter(tab2_panel4,x='WebFrameDesireNextYear',y='Respondent',color="WebFrameDesireNextYear", title='Top 10 WebFrameDesireNextYear',size="Respondent")
+
+#dashboard-3 panel 1
+tab3_panel1=demographics_data.groupby(['Gender'])['Respondent'].count().reset_index()
+fig3_1 = px.pie(tab3_panel1, values='Respondent', names='Gender',title='Respondent classified by Gender')
+
+#dashboard-3 panel 2
+
+tab3_panel2=demographics_data.groupby(['Country'])['Respondent'].count().reset_index()
+tab3_panel2['Country']=tab3_panel2['Country'].astype(str)
+tab3_panel2['Country'] = tab3_panel2['Country'].replace(['United States'],'United States of America')
+threshold_scale = np.linspace(tab3_panel2['Respondent'].min(),
+                              tab3_panel2['Respondent'].max(),
+                            6, dtype=int)
+threshold_scale = threshold_scale.tolist() # change the numpy array to a list
+threshold_scale[-1] = threshold_scale[-1] + 1 # make sure that the last value of the list is greater than the maximum immigration
+
+world_map = folium.Map(location=[0, 0], zoom_start=1)
+world_map.choropleth(geo_data=world_geo,data=tab3_panel2, name="choropleth",columns=['Country', 'Respondent'],key_on='feature.properties.name',
+                    threshold_scale=threshold_scale,
+                    fill_color='YlOrRd', 
+                    fill_opacity=0.7, 
+                    line_opacity=0.2,
+                    legend_name='Respondent Count for Countries.')
+world_map.save("Map_chart.html")
+
+#dashboard-3 panel 3
+tab3_panel3=demographics_data.groupby(['Age'])['Respondent'].count().reset_index()
+fig3_3 = px.line(tab3_panel3, x='Age', y='Respondent', markers=True,labels=True, title='Respondent Count by Age',text="Respondent")
+
+#dashboard-3 panel 4
+tab3_panel3=demographics_data.groupby(['Gender','EdLevel'])['Respondent'].count().reset_index()
+fig3_4 = px.bar(tab3_panel3, x='Gender', y="Respondent",color='EdLevel',title='Respondent Count by Gender, classified by Formal Education Level',text_auto=True,width=1200,height=600)
+fig3_4.update_traces(textfont_size=5, textangle=0, textposition="outside", cliponaxis=False)
+
+@app.callback(Output('tabs-content-example-graph', 'children'),
+              Input('tabs-example-graph', 'value'))
+def render_content(tab):
+    if tab == 'tab-1-example-graph':
+        return html.Div([
+            html.Div([
+                html.Div(dcc.Graph(figure=fig1_1)),
+                html.Div(dcc.Graph(figure=fig1_2))
+            ], style={'display': 'flex'}),
+            html.Br(),
+            html.Br(),
+            html.Div([
+                html.Div(html.Img(id="image_wc")),
+                html.Div(dcc.Graph(figure=fig1_4))
+            ], style={'display': 'flex'}),
+        ])
+    elif tab == 'tab-2-example-graph':
+        return html.Div([
+            html.Div([
+                html.Div(dcc.Graph(figure=fig2_1)),
+                html.Div(dcc.Graph(figure=fig2_2))
+            ], style={'display': 'flex'}),
+            html.Div([
+                html.Div(dcc.Graph(figure=fig2_3)),
+                html.Div(dcc.Graph(figure=fig2_4))
+            ], style={'display': 'flex'}),
+        ])
+    elif tab == 'tab-3-example-graph':
+        return html.Div([
+            html.H3('Tab content 3'),
+            html.Div([
+                html.Div(dcc.Graph(figure=fig3_1)),
+                html.Div(html.Iframe(id='Map_chart',srcDoc=open("Map_chart.html",'r').read(),width=600,height=300))
+            ], style={'display': 'flex'}),
+            html.Div([
+                html.Div(dcc.Graph(figure=fig3_3)),
+                html.Div(dcc.Graph(figure=fig3_4))
+            ], style={'display': 'flex'}),
+        ])
+
+def plot_wordcloud(data):
+    d = {a: x for a, x in data.values}
+    wc = WordCloud(background_color='white', width=650, height=330)
+    wc.fit_words(d)
+    return wc.to_image()
+
+
+@app.callback(dd.Output('image_wc', 'src'), [dd.Input('image_wc', 'id')])
+def make_image(b):
+    img = BytesIO()
+    plot_wordcloud(data=text).save(img, format='PNG')
+    return 'data:image/png;base64,{}'.format(base64.b64encode(img.getvalue()).decode())
+
+# Run the application                   
+if __name__ == '__main__':
+    app.run_server()
