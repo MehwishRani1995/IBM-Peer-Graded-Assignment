@@ -86,7 +86,7 @@ fig2_2=px.bar(tab2_panel2,x='DatabaseDesireNextYear',y='Respondent',color="Datab
 
 #dashboard-2 panel 3
 tab2_panel3=technology_data.groupby(['PlatformDesireNextYear'])['Respondent'].count().nlargest(10).reset_index()
-fig2_3 = px.treemap(tab2_panel3,path=['PlatformDesireNextYear'],values='Respondent', color='PlatformDesireNextYear')
+fig2_3 = px.treemap(tab2_panel3,path=['PlatformDesireNextYear'],values='Respondent', color='PlatformDesireNextYear',title='Platform Desire Next Year')
 
 #dashboard-2 panel 4
 tab2_panel4=technology_data.groupby(['WebFrameDesireNextYear'])['Respondent'].count().nlargest(10).reset_index()
@@ -137,7 +137,7 @@ def render_content(tab):
             html.Br(),
             html.Br(),
             html.Div([
-                html.Div(html.Img(id="image_wc")),
+                html.Div([html.H3('Platform Worked With'),html.Img(id="image_wc")]),
                 html.Div(dcc.Graph(figure=fig1_4))
             ], style={'display': 'flex'}),
         ])
@@ -154,10 +154,9 @@ def render_content(tab):
         ])
     elif tab == 'tab-3-example-graph':
         return html.Div([
-            html.H3('Tab content 3'),
             html.Div([
                 html.Div(dcc.Graph(figure=fig3_1)),
-                html.Div(html.Iframe(id='Map_chart',srcDoc=open("Map_chart.html",'r').read(),width=600,height=300))
+                html.Div([html.H3("Respondent Count for Countries"),html.Iframe(id='Map_chart',srcDoc=open("Map_chart.html",'r').read(),width=600,height=300)])
             ], style={'display': 'flex'}),
             html.Div([
                 html.Div(dcc.Graph(figure=fig3_3)),
