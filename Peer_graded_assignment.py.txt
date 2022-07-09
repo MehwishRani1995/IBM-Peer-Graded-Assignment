@@ -122,8 +122,8 @@ fig3_3 = px.line(tab3_panel3, x='Age', y='Respondent', markers=True,labels=True,
 
 #dashboard-3 panel 4
 tab3_panel3=demographics_data.groupby(['Gender','EdLevel'])['Respondent'].count().reset_index()
-fig3_4 = px.bar(tab3_panel3, x='Gender', y="Respondent",color='EdLevel',title='Respondent Count by Gender, classified by Formal Education Level',text_auto=True,width=1200,height=600)
-fig3_4.update_traces(textfont_size=5, textangle=0, textposition="outside", cliponaxis=False)
+fig3_4 = px.bar(tab3_panel3, x='Respondent', y="Gender",color='EdLevel',orientation='h',title='Respondent Count by Gender, classified by Formal Education Level',text_auto=True,width=1500,height=400)
+fig3_4.update_traces(textfont_size=7, textangle=90, textposition="outside", cliponaxis=False)
 
 @app.callback(Output('tabs-content-example-graph', 'children'),
               Input('tabs-example-graph', 'value'))
