@@ -62,11 +62,11 @@ app.layout = html.Div(children=[html.H1('Peer Graded Assignment',
                     ])
 #dashboard-1 panel 1
 tab1_panel1=technology_data.groupby(['LanguageWorkedWith'])['Respondent'].count().nlargest(10).reset_index()
-fig1_1=px.bar(tab1_panel1,x='LanguageWorkedWith',y='Respondent',color="LanguageWorkedWith", title='Top 10 Language Worked With',labels={'Respondent':'Number of Respondent',"LanguageWorkedWith":"Language Worked With"},text_auto=True)
+fig1_1=px.bar(tab1_panel1,x='Respondent',y='LanguageWorkedWith',color="LanguageWorkedWith", title='Top 10 Language Worked With',orientation='h',labels={'Respondent':'Number of Respondent',"LanguageWorkedWith":"Language Worked With"},text_auto=True)
 
 #dashboard-1 panel 2
 tab1_panel2=technology_data.groupby(['DatabaseWorkedWith'])['Respondent'].count().nlargest(10).reset_index()
-fig1_2=px.bar(tab1_panel2,x='Respondent',y='DatabaseWorkedWith',color="DatabaseWorkedWith",orientation='h', title='Top 10 Database Worked With',labels={'Respondent':'Number of Respondent',"DatabaseWorkedWith":"Database Worked With"},text_auto=True)
+fig1_2=px.bar(tab1_panel2,x='DatabaseWorkedWith',y='Respondent',color="DatabaseWorkedWith", title='Top 10 Database Worked With',labels={'Respondent':'Number of Respondent',"DatabaseWorkedWith":"Database Worked With"},text_auto=True)
 
 #dashboard-1 panel 3
 text=technology_data.groupby(['PlatformWorkedWith'])['Respondent'].count().reset_index()
@@ -77,7 +77,7 @@ fig1_4=px.scatter(tab1_panel4,x='WebFrameWorkedWith',y='Respondent',color="WebFr
 
 #dashboard-2 panel 1
 tab2_panel1=technology_data.groupby(['LanguageDesireNextYear'])['Respondent'].count().nlargest(10).reset_index()
-fig2_1=px.bar(tab2_panel1,x='LanguageDesireNextYear',y='Respondent',color="LanguageDesireNextYear", title='Top 10 Languages Desire Next Year',labels={'Respondent':'Number of Respondent',"LanguageDesireNextYear":"Languages Desire Next Year"},text_auto=True)
+fig2_1=px.bar(tab2_panel1,x='Respondent',y='LanguageDesireNextYear',color="LanguageDesireNextYear",orientation='h', title='Top 10 Languages Desire Next Year',labels={'Respondent':'Number of Respondent',"LanguageDesireNextYear":"Languages Desire Next Year"},text_auto=True)
 
 #dashboard-2 panel 2
 tab2_panel2=technology_data.groupby(['DatabaseDesireNextYear'])['Respondent'].count().nlargest(10).reset_index()
